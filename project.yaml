@@ -1,0 +1,43 @@
+specVersion: 1.0.0
+name: subquery-network-exchange
+version: 0.1.0
+runner:
+  node:
+    name: '@subql/node'
+    version: '>=1.0.0'
+  query:
+    name: '@subql/query'
+    version: '*'
+description: >-
+  This project is for capturing the data for the exchange contract on the
+  subquery kepler network
+repository: 'https://github.com/subquery/subquery-network-exchange.git'
+schema:
+  file: ./schema.graphql
+network:
+  chainId: '0x5c562e6300954998233c9a40b6b86f3028977e6d32d0da1af207738d19f98c1b'
+  endpoint: 'wss://mandala-tc7-rpcnode.aca-dev.network/ws'
+  dictionary: 'https://api.subquery.network/sq/subquery/acala-mandala-tc7-dictionary'
+
+x-frontier: &frontier
+  kind: substrate/AcalaEvm
+  startBlock: 1398237 
+  processor: &frontier-processor
+    file: './dist/acalaEvm.js'
+  assets: 
+    permissionedExchange:
+      file: '0xEeFBccF5D72360D463ac053cA5c9E5fa96459533'
+
+
+dataSources:
+  - <<: *frontier
+    processor:
+      <<: *frontier-processor
+      options:
+        abi: permissionedExchange:
+        address: ''
+    mapping:
+      file: ./dist/index.js
+      handlers:
+        - handler: 
+    
