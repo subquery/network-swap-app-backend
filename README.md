@@ -1,8 +1,6 @@
-# SubQuery - Starter Package
+# SubQuery Network Kepler Exchange
 
-
-The Starter Package is an example that you can use as a starting point for developing your SubQuery project.
-A SubQuery package defines which data The SubQuery will index from the Substrate blockchain, and how it will store it. 
+This project is for capturing the data for the exchange contract on the subquery kepler network
 
 ## Preparation
 
