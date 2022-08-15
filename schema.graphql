@@ -6,8 +6,8 @@ type Trader @entity {
   
   trades: [Trade] @derivedFrom(field: "sender")
 
-  createAt: Date!
-  updateAt: Date!
+  createAt: String
+  updateAt: String
 }
 
 type Trade @entity {
@@ -19,8 +19,8 @@ type Trade @entity {
   amountGive: BigInt!
   amountGet: BigInt!
 
-  createAt: Date!
-  updateAt: Date!
+  createAt: String
+  updateAt: String
 }
 
 type Order @entity {
@@ -34,7 +34,7 @@ type Order @entity {
   amountGet: BigInt!,
   expireDate: Date!
 
-  createAt: Date!
-  updateAt: Date!
+  createAt: String
+  updateAt: String
 }
 
