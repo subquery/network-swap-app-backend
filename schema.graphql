@@ -1,0 +1,40 @@
+type Trader @entity {
+  id: ID! #trader address
+  totalTradeAmount: BigInt! #calculated the Trade event increase or decrease based on tokenGive and tokenGet
+  totalAwardAmount: BigInt! #summed from ClaimRewards event
+  maxTradeAmount: BigInt! #totalAwardAmount - totalTradeAmount
+  
+  trades: [Trade] @derivedFrom(field: "sender")
+
+  createAt: String
+  updateAt: String
+}
+
+type Trade @entity {
+  id: ID! #orderId
+  sender: Trader!
+
+  tokenGive: String!
+  tokenGet: String!
+  amountGive: BigInt!
+  amountGet: BigInt!
+
+  createAt: String
+  updateAt: String
+}
+
+type Order @entity {
+  id: ID! #orderId
+  amountGiveLeft: BigInt! #amount left that indexer can trade
+
+  sender: String!,
+  tokenGive: String!, 
+  tokenGet: String!,
+  amountGive: BigInt!,
+  amountGet: BigInt!,
+  expireDate: Date!
+
+  createAt: String
+  updateAt: String
+}
+
