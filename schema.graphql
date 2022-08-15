@@ -5,6 +5,9 @@ type Trader @entity {
   maxTradeAmount: BigInt! #totalAwardAmount - totalTradeAmount
   
   trades: [Trade] @derivedFrom(field: "sender")
+
+  createAt: Date!
+  updateAt: Date!
 }
 
 type Trade @entity {
@@ -15,6 +18,9 @@ type Trade @entity {
   tokenGet: String!
   amountGive: BigInt!
   amountGet: BigInt!
+
+  createAt: Date!
+  updateAt: Date!
 }
 
 type Order @entity {
@@ -27,5 +33,8 @@ type Order @entity {
   amountGive: BigInt!,
   amountGet: BigInt!,
   expireDate: Date!
+
+  createAt: Date!
+  updateAt: Date!
 }
 
