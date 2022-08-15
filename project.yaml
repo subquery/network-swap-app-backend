@@ -26,18 +26,30 @@ x-frontier: &frontier
     file: './dist/acalaEvm.js'
   assets: 
     permissionedExchange:
-      file: '0xEeFBccF5D72360D463ac053cA5c9E5fa96459533'
-
+      file: ./node_modules/@subql/contract-sdk/artifacts/contracts/ServiceAgreementRegistry.sol/PermissionedExchange.json
 
 dataSources:
   - <<: *frontier
     processor:
       <<: *frontier-processor
       options:
-        abi: permissionedExchange:
-        address: ''
+        abi: permissionedExchange
+        address: '0x8eE5f75281F9AA28f8A866875F46D923Bc7Bc9a4'
     mapping:
       file: ./dist/index.js
       handlers:
         - handler: 
-    
+          kind: substrate/AcalaEvmEvent
+          filter:
+            topics:
+              - ExchangeOrderSent(uint256 indexed orderId, address sender, address tokenGive, address tokenGet, uint256 amountGive, uint256 amountGet, uint256 expireDate)
+        - handler: 
+          kind: substrate/AcalaEvmEvent
+          filter:
+            topics:
+              - Trade(uint256 indexed orderId, address tokenGive, uint256 amountGive, address tokenGet, uint256 amountGet) 
+        - handler: 
+          kind: substrate/AcalaEvmEvent
+          filter:
+            topics:
+              - OrderSettled(uint256 indexed orderId, address tokenGive, uint256 amountGive, address tokenGet, uint256 amountGet)

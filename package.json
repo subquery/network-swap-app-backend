@@ -12,7 +12,6 @@
     "check-filters": "node -r ts-node/register/transpile-only ./scripts/checkFilters.ts"
   },
   "homepage": "https://github.com/subquery/subql-starter",
-  "repository": "github:subquery/subql-starter",
   "files": [
     "dist",
     "schema.graphql",
@@ -40,9 +39,9 @@
     "typescript": "^4.1.3"
   },
   "dependencies": {
-    "@acala-network/type-definitions": "^4.1.3",
+    "@acala-network/type-definitions": "^4.1.5",
     "@subql/acala-evm-processor": "^0.0.3-1",
-    "@subql/contract-sdk": "0.7.1-8",
+    "@subql/contract-sdk": "0.7.1-10",
     "@types/pino": "^7.0.5",
     "@types/validator": "^13.7.1",
     "bs58": "^4.0.1",
