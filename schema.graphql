@@ -23,6 +23,12 @@ type Trade @entity {
   updateAt: String
 }
 
+
+enum OrderStatus {
+  ACTIVE
+  INACTIVE
+}
+
 type Order @entity {
   id: ID! #orderId
   amountGiveLeft: BigInt! #amount left that indexer can trade
@@ -33,6 +39,8 @@ type Order @entity {
   amountGive: BigInt!,
   amountGet: BigInt!,
   expireDate: Date!
+
+  status: OrderStatus!
 
   createAt: String
   updateAt: String
