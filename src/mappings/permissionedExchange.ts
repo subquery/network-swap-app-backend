@@ -1,11 +1,43 @@
 import { AcalaEvmEvent } from "@subql/acala-evm-processor";
 import { ExchangeOrderSentEvent, OrderSettledEvent, TradeEvent } from "@subql/contract-sdk/typechain/PermissionedExchange";
 import assert from "assert";
+import { OrderStatus } from "../types";
 
 import { PermissionedExchange__factory } from '@subql/contract-sdk';
 import FrontierEthProvider from './ethProvider';
-import { EXCHANGE_DIST_ADDRESS } from "./utils";
+import { EXCHANGE_DIST_ADDRESS, getUpsertAt } from "./utils";
 import { Order, Trade, Trader } from "../types";
+import { BigNumber } from 'ethers';
+
+const { ACTIVE, INACTIVE } = OrderStatus;
+
+function calculateTradeAmount(
+    totalTradeAmount: BigInt,
+    event: AcalaEvmEvent<TradeEvent['args']>
+): bigint {
+    const { tokenGive, tokenGet, amountGive, amountGet } = event.args;
+    //TODO: [ ] need to do some kind of division conversion
+    return 
+}
+
+async function createTrade(
+    orderId: BigNumber,
+    sender: string,
+    event: AcalaEvmEvent<TradeEvent['args']>
+): Promise<void> {
+    const { tokenGive, tokenGet, amountGive, amountGet } = event.args;
+
+    const trade = Trade.create({
+        id: orderId.toString(),
+        tokenGive,
+        tokenGet,
+        amountGive: amountGet.toBigInt(),
+        amountGet: amountGive.toBigInt(),
+        senderId: sender
+    });
+
+    await trade.save();   
+}
 
 export async function handleExchangeOrderSent(
     event: AcalaEvmEvent<ExchangeOrderSentEvent['args']>
@@ -15,22 +47,16 @@ export async function handleExchangeOrderSent(
 
     const { orderId, sender, tokenGive, tokenGet, amountGive, amountGet, expireDate } = event.args;
 
-    const permissionedExchange = PermissionedExchange__factory.connect(
-        EXCHANGE_DIST_ADDRESS,
-        new FrontierEthProvider()
-    );
-
-    const { amountGiveLeft } = await permissionedExchange.orders(orderId);
-
     const order = Order.create({
-        id: orderId.toHexString(), //FIXME: toString() or toHexString()? 
+        id: orderId.toString(),
         sender,
         tokenGive,
         tokenGet,
         amountGive: amountGive.toBigInt(),
         amountGet: amountGet.toBigInt(),
         expireDate: new Date(expireDate.toNumber()),
-        amountGiveLeft: amountGiveLeft.toBigInt(),
+        amountGiveLeft: amountGive.toBigInt(),
+        status: ACTIVE
     });
 
     await order.save();
@@ -42,29 +68,47 @@ export async function handleTrade(
     logger.info('handleTrade');
     assert(event.args, 'No event args');
 
-    const { orderId, tokenGive, tokenGet, amountGive, amountGet } = event.args; 
+    const { orderId } = event.args; 
+    const handlerInfo = getUpsertAt('handleOrderSettled', event);
 
     const permissionedExchange = PermissionedExchange__factory.connect(
         EXCHANGE_DIST_ADDRESS,
         new FrontierEthProvider()
     );
-    const { sender } = await permissionedExchange.orders(orderId);
+    
+    //FIXME: sender can be replaced by event.from
+    //FIXME: I may not need to get amountGiveLeft every time I have a trade event.
+    const { sender, amountGiveLeft } = await permissionedExchange.orders(orderId);    
+    await createTrade(orderId, sender, event);
 
-    const trade = Trade.create({
-        id: orderId.toHexString(),
-        tokenGive,
-        tokenGet,
-        amountGive: amountGet.toBigInt(),
-        amountGet: amountGive.toBigInt(),
-        senderId: sender
-    });
+    //-- Order Entity handling 
 
-    await trade.save();        
+    const order = await Order.get(orderId.toString());
+    assert(order, `Expect order with id ${orderId.toString()} to exist`);
 
-    const trader = await Trader.get(sender);
-    trader.totalTradeAmount //- [ ] + or - based on calculation
+    order.amountGiveLeft = amountGiveLeft.toBigInt();
+    await order.save();
+
+    //-- Trader Entity handling 
+
+    let trader = await Trader.get(sender);
+    const totalTradeAmount = calculateTradeAmount(trader ? trader.totalTradeAmount : BigInt(0), event);
+
+    if(!trader) {
+        trader = Trader.create({
+            id: sender,
+            totalTradeAmount,
+            totalAwardAmount: BigInt(0),
+            maxTradeAmount: BigInt(0),
+            createAt: handlerInfo
+        });
+    } else {
+        const { totalAwardAmount, totalTradeAmount } = trader;
+        trader.totalTradeAmount = totalTradeAmount;
+        trader.updateAt = handlerInfo;
+        trader.maxTradeAmount = totalAwardAmount - totalTradeAmount;
+    }
     await trader.save();
-
 }
 
 export async function handleOrderSettled(
@@ -73,8 +117,13 @@ export async function handleOrderSettled(
     logger.info('handleOrderSettled');
     assert(event.args, 'No event args');
 
-    const { orderId } = event.args;
-    const order = Order.get(orderId.toHexString());
+    const { orderId, amountGive, amountGet } = event.args;
+    const order = await Order.get(orderId.toString());
+    assert(order, `No order found for ${orderId}`)
 
-    // - [ ] I need to read contract method to understand what I need to update for this.
+    order.status = INACTIVE;
+    order.amountGive = amountGive.toBigInt();
+    order.amountGet = amountGet.toBigInt();
+    order.updateAt = getUpsertAt('handleOrderSettled', event);
+    await order.save();
 }

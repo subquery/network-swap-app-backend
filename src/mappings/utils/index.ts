@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { AcalaEvmEvent } from '@subql/acala-evm-processor';
+import testnetAddresses from '@subql/contract-sdk/publish/testnet.json';
+
+export const EXCHANGE_DIST_ADDRESS = testnetAddresses.PermissionedExchange.address;
 
 /**
  *
