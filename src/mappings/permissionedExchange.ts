@@ -12,12 +12,21 @@ import { BigNumber } from 'ethers';
 const { ACTIVE, INACTIVE } = OrderStatus;
 
 function calculateTradeAmount(
-    totalTradeAmount: BigInt,
+    totalTradeAmount: bigint,
     event: AcalaEvmEvent<TradeEvent['args']>
 ): bigint {
     const { tokenGive, tokenGet, amountGive, amountGet } = event.args;
-    //TODO: [ ] still need to add calculation 
-    return 
+    const getIsKSQT = tokenGet === 'kSQT';
+    const giveIsKSQT = tokenGive === 'kSQT';
+
+    if(giveIsKSQT && getIsKSQT) return totalTradeAmount;
+
+    const tradeAmountBN = BigNumber.from(totalTradeAmount);
+
+    if(giveIsKSQT) return tradeAmountBN.add(amountGive).toBigInt();
+    if(getIsKSQT) return tradeAmountBN.sub(amountGet).toBigInt();
+
+    return totalTradeAmount;
 }
 
 async function createTrade(
@@ -28,7 +37,7 @@ async function createTrade(
     const { tokenGive, tokenGet, amountGive, amountGet } = event.args;
 
     const trade = Trade.create({
-        id: orderId.toString(),
+        id: `${orderId.toString()}:${event.transactionHash}`,
         tokenGive,
         tokenGet,
         amountGive: amountGet.toBigInt(),

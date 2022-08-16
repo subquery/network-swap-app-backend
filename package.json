@@ -40,8 +40,8 @@
   },
   "dependencies": {
     "@acala-network/type-definitions": "^4.1.5",
-    "@subql/acala-evm-processor": "^0.0.3-1",
-    "@subql/contract-sdk": "0.10.1-0",
+    "@subql/acala-evm-processor": "0.0.3-2",
+    "@subql/contract-sdk": "0.10.1-1",
     "@types/pino": "^7.0.5",
     "@types/validator": "^13.7.1",
     "bs58": "^4.0.1",

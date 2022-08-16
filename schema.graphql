@@ -11,7 +11,7 @@ type Trader @entity {
 }
 
 type Trade @entity {
-  id: ID! #orderId
+  id: ID! #orderId:txhash
   sender: Trader!
 
   tokenGive: String!
@@ -31,6 +31,7 @@ enum OrderStatus {
 type Order @entity {
   id: ID! #orderId
   amountGiveLeft: BigInt! #amount left that indexer can trade
+
   sender: String!
   tokenGive: String!
   tokenGet: String!
