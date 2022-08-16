@@ -16,7 +16,7 @@ function calculateTradeAmount(
     event: AcalaEvmEvent<TradeEvent['args']>
 ): bigint {
     const { tokenGive, tokenGet, amountGive, amountGet } = event.args;
-    //TODO: [ ] need to do some kind of division conversion
+    //TODO: [ ] still need to add calculation 
     return 
 }
 
