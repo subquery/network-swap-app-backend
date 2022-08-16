@@ -85,9 +85,10 @@ export async function handleTrade(
         new FrontierEthProvider()
     );
     
-    //FIXME: sender can be replaced by event.from
     //FIXME: I may not need to get amountGiveLeft every time I have a trade event.
-    const { sender, amountGiveLeft } = await permissionedExchange.orders(orderId);    
+    const { amountGiveLeft } = await permissionedExchange.orders(orderId);    
+    const sender = event.from;
+
     await createTrade(orderId, sender, event);
 
     //-- Order Entity handling 
