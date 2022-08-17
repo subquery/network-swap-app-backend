@@ -37,7 +37,8 @@ async function createTrade(
         tokenGet: tokenGive,
         amountGive:  amountGet.toBigInt(),
         amountGet: amountGive.toBigInt(),
-        senderId: sender
+        senderId: sender,
+        createAt: getUpsertAt('createTrade', event)
     });
 
     await trade.save();   
@@ -60,7 +61,8 @@ export async function handleExchangeOrderSent(
         amountGet: amountGet.toBigInt(),
         expireDate: new Date(expireDate.toNumber()),
         amountGiveLeft: amountGive.toBigInt(),
-        status: ACTIVE
+        status: ACTIVE,
+        createAt: getUpsertAt('handleExchangeOrderSent', event)
     });
 
     await order.save();
@@ -75,7 +77,7 @@ export async function handleTrade(
     const sender = event.from;
     const { orderId } = event.args;
     
-    const handlerInfo = getUpsertAt('handleOrderSettled', event);
+    const handlerInfo = getUpsertAt('handleTrade', event);
 
     const permissionedExchange = PermissionedExchange__factory.connect(
         EXCHANGE_DIST_ADDRESS,
@@ -91,6 +93,7 @@ export async function handleTrade(
     assert(order, `Expect order with id ${orderId.toString()} to exist`);
 
     order.amountGiveLeft = amountGiveLeft.toBigInt();
+    order.updateAt = handlerInfo;
     await order.save();
 
     //-- Trader Entity handling 
