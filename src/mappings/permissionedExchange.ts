@@ -15,11 +15,11 @@ function calculateTradeAmount(
     totalTradeAmount: bigint,
     event: AcalaEvmEvent<TradeEvent['args']>
 ): bigint {
-    const { tokenGive, amountGive } = event.args;
-    const giveIsKSQT = isKSQT(tokenGive); 
+    const {tokenGet, amountGet} = event.args;
+    const getIsKSQT = isKSQT(tokenGet); 
     const tradeAmountBN = BigNumber.from(totalTradeAmount);
 
-    if(giveIsKSQT) return tradeAmountBN.add(amountGive).toBigInt();
+    if(getIsKSQT) return tradeAmountBN.add(amountGet).toBigInt();
 
     return totalTradeAmount;
 }
