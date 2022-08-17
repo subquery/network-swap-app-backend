@@ -35,8 +35,8 @@ async function createTrade(
         id: `${orderId.toString()}:${event.transactionHash}`,
         tokenGive: tokenGet,
         tokenGet: tokenGive,
-        amountGive:  amountGive.toBigInt(),
-        amountGet: amountGet.toBigInt(),
+        amountGive:  amountGet.toBigInt(),
+        amountGet: amountGive.toBigInt(),
         senderId: sender
     });
 
