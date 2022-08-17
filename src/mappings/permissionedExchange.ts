@@ -59,7 +59,7 @@ export async function handleExchangeOrderSent(
         tokenGet,
         amountGive: amountGive.toBigInt(),
         amountGet: amountGet.toBigInt(),
-        expireDate: new Date(expireDate.toNumber()),
+        expireDate: new Date(expireDate.toNumber() * 1000), // seconds from contract
         amountGiveLeft: amountGive.toBigInt(),
         status: ACTIVE,
         createAt: getUpsertAt('handleExchangeOrderSent', event)
