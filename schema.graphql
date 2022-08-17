@@ -1,8 +1,9 @@
 type Trader @entity {
   id: ID! #trader address
-  totalTradeAmount: BigInt! #calculated the Trade event increase or decrease based on tokenGive and tokenGet
+  totalTradeAmount: BigInt! #total sold amount of KSQT
   totalAwardAmount: BigInt! #summed from ClaimRewards event
   maxTradeAmount: BigInt! #totalAwardAmount - totalTradeAmount
+
   trades: [Trade] @derivedFrom(field: "sender")
 
   createAt: String #getUpsertAt: topicHandler:block:Txhash
@@ -30,6 +31,7 @@ enum OrderStatus {
 type Order @entity {
   id: ID! #orderId
   amountGiveLeft: BigInt! #amount left that indexer can trade
+
   sender: String!
   tokenGive: String!
   tokenGet: String!
@@ -38,6 +40,7 @@ type Order @entity {
   expireDate: Date!
 
   status: OrderStatus! # Inactive when cancel/setExpired
+
   createAt: String #getUpsertAt: topicHandler:block:Txhash
   updateAt: String #getUpsertAt: topicHandler:block:Txhash
 }

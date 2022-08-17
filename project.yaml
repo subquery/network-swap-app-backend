@@ -21,12 +21,14 @@ network:
 
 x-frontier: &frontier
   kind: substrate/AcalaEvm
-  startBlock: 1398237 
+  startBlock: 1753655 
   processor: &frontier-processor
     file: './dist/acalaEvm.js'
   assets: 
     permissionedExchange:
-      file: ./node_modules/@subql/contract-sdk/artifacts/contracts/ServiceAgreementRegistry.sol/PermissionedExchange.json
+      file: ./node_modules/@subql/contract-sdk/artifacts/contracts/PermissionedExchange.sol/PermissionedExchange.json
+    rewardsDistributor:
+      file: ./node_modules/@subql/contract-sdk/artifacts/contracts/RewardsDistributer.sol/RewardsDistributer.json
 
 dataSources:
   - <<: *frontier
@@ -34,22 +36,36 @@ dataSources:
       <<: *frontier-processor
       options:
         abi: permissionedExchange
-        address: '0x8eE5f75281F9AA28f8A866875F46D923Bc7Bc9a4'
+        address: '0xf3074BB5cEeEbA127f1FAb7fca4D1cB96c7b8a83'
     mapping:
       file: ./dist/index.js
       handlers:
-        - handler: 
+        - handler: handleExchangeOrderSent
           kind: substrate/AcalaEvmEvent
           filter:
             topics:
               - ExchangeOrderSent(uint256 indexed orderId, address sender, address tokenGive, address tokenGet, uint256 amountGive, uint256 amountGet, uint256 expireDate)
-        - handler: 
+        - handler: handleTrade
           kind: substrate/AcalaEvmEvent
           filter:
             topics:
               - Trade(uint256 indexed orderId, address tokenGive, uint256 amountGive, address tokenGet, uint256 amountGet) 
-        - handler: 
+        - handler: handleOrderSettled
           kind: substrate/AcalaEvmEvent
           filter:
             topics:
               - OrderSettled(uint256 indexed orderId, address tokenGive, uint256 amountGive, address tokenGet, uint256 amountGet)
+  - <<: *frontier
+    processor:
+      <<: *frontier-processor
+      options:
+        abi: rewardsDistributor
+        address: '0xFE469B4f216Af17e5dB08A2eE6A0268CEFD870Be'
+    mapping:
+      file: ./dist/index.js
+      handlers:
+        - handler: handleRewardsClaimed
+          kind: substrate/AcalaEvmEvent
+          filter:
+            topics:
+              - ClaimRewards(address indexed indexer, address indexed delegator, uint256 rewards)
