@@ -5,6 +5,7 @@ import { AcalaEvmEvent } from '@subql/acala-evm-processor';
 import testnetAddresses from '@subql/contract-sdk/publish/testnet.json';
 
 export const EXCHANGE_DIST_ADDRESS = testnetAddresses.PermissionedExchange.address;
+export const KSQT_ADDRESS = testnetAddresses.SQToken.address;
 
 /**
  *
@@ -16,3 +17,9 @@ export const getUpsertAt = (handler: string, event: AcalaEvmEvent<any>): string 
   const upsertAt = `${handler}:${event.blockNumber}:${event.transactionHash}`;
   return upsertAt;
 };
+
+export const isKSQT = (address: string): boolean => {
+  return address === KSQT_ADDRESS;
+}
+
+

@@ -5,7 +5,7 @@ import { OrderStatus } from "../types";
 
 import { PermissionedExchange__factory } from '@subql/contract-sdk';
 import FrontierEthProvider from './ethProvider';
-import { EXCHANGE_DIST_ADDRESS, getUpsertAt } from "./utils";
+import { EXCHANGE_DIST_ADDRESS, getUpsertAt, isKSQT } from "./utils";
 import { Order, Trade, Trader } from "../types";
 import { BigNumber } from 'ethers';
 
@@ -16,8 +16,8 @@ function calculateTradeAmount(
     event: AcalaEvmEvent<TradeEvent['args']>
 ): bigint {
     const { tokenGive, tokenGet, amountGive, amountGet } = event.args;
-    const getIsKSQT = tokenGet === 'kSQT';
-    const giveIsKSQT = tokenGive === 'kSQT';
+    const getIsKSQT = isKSQT(tokenGet); 
+    const giveIsKSQT = isKSQT(tokenGive); 
 
     if(giveIsKSQT && getIsKSQT) return totalTradeAmount;
 
@@ -38,10 +38,10 @@ async function createTrade(
 
     const trade = Trade.create({
         id: `${orderId.toString()}:${event.transactionHash}`,
-        tokenGive,
-        tokenGet,
-        amountGive: amountGet.toBigInt(),
-        amountGet: amountGive.toBigInt(),
+        tokenGive: tokenGet,
+        tokenGet: tokenGive,
+        amountGive:  amountGive.toBigInt(),
+        amountGet: amountGet.toBigInt(),
         senderId: sender
     });
 
