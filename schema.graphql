@@ -1,6 +1,6 @@
 type Trader @entity {
   id: ID! #trader address
-  totalTradeAmount: BigInt! #calculated the Trade event increase or decrease based on tokenGive and tokenGet
+  totalTradeAmount: BigInt! #total sold amount of KSQT
   totalAwardAmount: BigInt! #summed from ClaimRewards event
   maxTradeAmount: BigInt! #totalAwardAmount - totalTradeAmount
 

@@ -15,16 +15,11 @@ function calculateTradeAmount(
     totalTradeAmount: bigint,
     event: AcalaEvmEvent<TradeEvent['args']>
 ): bigint {
-    const { tokenGive, tokenGet, amountGive, amountGet } = event.args;
-    const getIsKSQT = isKSQT(tokenGet); 
+    const { tokenGive, amountGive } = event.args;
     const giveIsKSQT = isKSQT(tokenGive); 
-
-    if(giveIsKSQT && getIsKSQT) return totalTradeAmount;
-
     const tradeAmountBN = BigNumber.from(totalTradeAmount);
 
     if(giveIsKSQT) return tradeAmountBN.add(amountGive).toBigInt();
-    if(getIsKSQT) return tradeAmountBN.sub(amountGet).toBigInt();
 
     return totalTradeAmount;
 }
@@ -77,7 +72,9 @@ export async function handleTrade(
     logger.info('handleTrade');
     assert(event.args, 'No event args');
 
-    const { orderId } = event.args; 
+    const sender = event.from;
+    const { orderId } = event.args;
+    
     const handlerInfo = getUpsertAt('handleOrderSettled', event);
 
     const permissionedExchange = PermissionedExchange__factory.connect(
@@ -85,10 +82,7 @@ export async function handleTrade(
         new FrontierEthProvider()
     );
     
-    //FIXME: I may not need to get amountGiveLeft every time I have a trade event.
     const { amountGiveLeft } = await permissionedExchange.orders(orderId);    
-    const sender = event.from;
-
     await createTrade(orderId, sender, event);
 
     //-- Order Entity handling 
@@ -102,7 +96,7 @@ export async function handleTrade(
     //-- Trader Entity handling 
 
     let trader = await Trader.get(sender);
-    const totalTradeAmount = calculateTradeAmount(trader ? trader.totalTradeAmount : BigInt(0), event);
+    const totalTradeAmount = calculateTradeAmount(trader?.totalTradeAmount ?? BigInt(0), event);
 
     if(!trader) {
         trader = Trader.create({
