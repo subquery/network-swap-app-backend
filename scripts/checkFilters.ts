@@ -8,10 +8,7 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
-import {
-  Interface,
-  EventFragment /*, FunctionFragment*/,
-} from '@ethersproject/abi';
+import { Interface, EventFragment /*, FunctionFragment*/ } from '@ethersproject/abi';
 
 const file = path.resolve(__dirname, '../project.yaml');
 
@@ -69,9 +66,7 @@ function checkFilters() {
         if (topics?.[0] && ds.assets && ds.processor?.options) {
           const topic = topics[0];
 
-          const iface = buildInterface(
-            path.resolve(ds.assets[ds.processor.options.abi].file)
-          );
+          const iface = buildInterface(path.resolve(ds.assets[ds.processor.options.abi].file));
           const matches = Object.values(iface.events).find(
             (val) => val.format() === EventFragment.fromString(topic).format()
           );

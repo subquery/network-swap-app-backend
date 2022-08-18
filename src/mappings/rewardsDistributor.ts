@@ -1,34 +1,35 @@
-import { AcalaEvmEvent } from "@subql/acala-evm-processor";
-import { ClaimRewardsEvent } from "@subql/contract-sdk/typechain/RewardsDistributer";
-import assert from "assert";
-import { Trader } from "../types";
-import { getUpsertAt } from "./utils";
+// Copyright 2020-2022 SubQuery Pte Ltd authors & contributors
+// SPDX-License-Identifier: Apache-2.0
 
-export async function handleRewardsClaimed(
-    event: AcalaEvmEvent<ClaimRewardsEvent['args']>
-  ): Promise<void> {
-    logger.info('handleRewardsClaimed');
-    assert(event.args, 'No event args');
+import { AcalaEvmEvent } from '@subql/acala-evm-processor';
+import { ClaimRewardsEvent } from '@subql/contract-sdk/typechain/RewardsDistributer';
+import assert from 'assert';
+import { Trader } from '../types';
+import { getUpsertAt } from './utils';
 
-    const { delegator, rewards } = event.args;
-    const rewardsBigInt = rewards.toBigInt();
-    const handlerInfo = getUpsertAt('handleRewardsClaimed', event);
-    
-    let trader = await Trader.get(delegator);
+export async function handleRewardsClaimed(event: AcalaEvmEvent<ClaimRewardsEvent['args']>): Promise<void> {
+  logger.info('handleRewardsClaimed');
+  assert(event.args, 'No event args');
 
-    if (!trader) {
-      trader = Trader.create({
-        id: delegator,
-        totalTradeAmount: BigInt(0),
-        totalAwardAmount: rewardsBigInt,
-        maxTradeAmount: rewardsBigInt,
-        createAt: handlerInfo 
-      });
-    } else {
-      trader.totalAwardAmount += rewardsBigInt;
-      trader.maxTradeAmount = trader.totalAwardAmount - trader.totalTradeAmount;
-      trader.updateAt = handlerInfo;
-    }
+  const { delegator, rewards } = event.args;
+  const rewardsBigInt = rewards.toBigInt();
+  const handlerInfo = getUpsertAt('handleRewardsClaimed', event);
 
-    await trader.save();
+  let trader = await Trader.get(delegator);
+
+  if (!trader) {
+    trader = Trader.create({
+      id: delegator,
+      totalTradeAmount: BigInt(0),
+      totalAwardAmount: rewardsBigInt,
+      maxTradeAmount: rewardsBigInt,
+      createAt: handlerInfo,
+    });
+  } else {
+    trader.totalAwardAmount += rewardsBigInt;
+    trader.maxTradeAmount = trader.totalAwardAmount - trader.totalTradeAmount;
+    trader.updateAt = handlerInfo;
+  }
+
+  await trader.save();
 }

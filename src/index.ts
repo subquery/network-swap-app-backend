@@ -1,4 +1,4 @@
-//Exports all handler functions
-// export * from './mappings/mappingHandlers' 
-//FIXME: uncomment above
-import "@polkadot/api-augment"
+// Copyright 2020-2022 SubQuery Pte Ltd authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
+import '@polkadot/api-augment';

@@ -20,6 +20,4 @@ export const getUpsertAt = (handler: string, event: AcalaEvmEvent<any>): string 
 
 export const isKSQT = (address: string): boolean => {
   return address === KSQT_ADDRESS;
-}
-
-
+};
