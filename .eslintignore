@@ -4,3 +4,4 @@ src/types
 node_modules
 chaintypes.js
 .eslintrc.js
+scripts/checkFilters.ts

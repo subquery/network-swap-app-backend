@@ -51,8 +51,8 @@
     "pino": "^7.8.0"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix .",
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix",
       "prettier --write --config ./.prettierrc"
     ],
     "*.{css,md}": "prettier --write"
