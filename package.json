@@ -17,7 +17,7 @@
     "schema.graphql",
     "project.yaml"
   ],
-  "author": "Lachlan McCrae",
+  "author": "SubQuery Pte Ltd",
   "license": "MIT",
   "devDependencies": {
     "@polkadot/api": "^8",
@@ -41,7 +41,7 @@
   "dependencies": {
     "@acala-network/type-definitions": "^4.1.5",
     "@subql/acala-evm-processor": "0.0.3-2",
-    "@subql/contract-sdk": "0.10.1-1",
+    "@subql/contract-sdk": "0.10.2-0",
     "@types/pino": "^7.0.5",
     "@types/validator": "^13.7.1",
     "bs58": "^4.0.1",
