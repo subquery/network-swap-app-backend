@@ -1,4 +1,4 @@
-import { AcalaEvmEvent } from "@subql/acala-evm-processor";
+import { FrontierEvmEvent } from "@subql/frontier-evm-processor";
 import { ExchangeOrderSentEvent, OrderSettledEvent, TradeEvent } from "@subql/contract-sdk/typechain/PermissionedExchange";
 import assert from "assert";
 import { OrderStatus } from "../types";
@@ -13,7 +13,7 @@ const { ACTIVE, INACTIVE } = OrderStatus;
 
 function calculateTradeAmount(
     totalTradeAmount: bigint,
-    event: AcalaEvmEvent<TradeEvent['args']>
+    event: FrontierEvmEvent<TradeEvent['args']>
 ): bigint {
     const {tokenGet, amountGet} = event.args;
     const getIsKSQT = isKSQT(tokenGet); 
@@ -27,7 +27,7 @@ function calculateTradeAmount(
 async function createTrade(
     orderId: BigNumber,
     sender: string,
-    event: AcalaEvmEvent<TradeEvent['args']>
+    event: FrontierEvmEvent<TradeEvent['args']>
 ): Promise<void> {
     const { tokenGive, tokenGet, amountGive, amountGet } = event.args;
 
@@ -45,7 +45,7 @@ async function createTrade(
 }
 
 export async function handleExchangeOrderSent(
-    event: AcalaEvmEvent<ExchangeOrderSentEvent['args']>
+    event: FrontierEvmEvent<ExchangeOrderSentEvent['args']>
   ): Promise<void> {
     logger.info('handleRewardsClaimed');
     assert(event.args, 'No event args');
@@ -69,12 +69,11 @@ export async function handleExchangeOrderSent(
 }
 
 export async function handleTrade(
-    event: AcalaEvmEvent<TradeEvent['args']>
+    event: FrontierEvmEvent<TradeEvent['args']>
 ){
     logger.info('handleTrade');
     assert(event.args, 'No event args');
 
-    const sender = event.from;
     const { orderId } = event.args;
     
     const handlerInfo = getUpsertAt('handleTrade', event);
@@ -84,7 +83,7 @@ export async function handleTrade(
         new FrontierEthProvider()
     );
     
-    const { amountGiveLeft } = await permissionedExchange.orders(orderId);    
+    const { amountGiveLeft, sender } = await permissionedExchange.orders(orderId);    
     await createTrade(orderId, sender, event);
 
     //-- Order Entity handling 
@@ -119,7 +118,7 @@ export async function handleTrade(
 }
 
 export async function handleOrderSettled(
-    event: AcalaEvmEvent<OrderSettledEvent['args']>
+    event: FrontierEvmEvent<OrderSettledEvent['args']>
 ){
     logger.info('handleOrderSettled');
     assert(event.args, 'No event args');

@@ -1,11 +1,11 @@
-import { AcalaEvmEvent } from "@subql/acala-evm-processor";
+import { FrontierEvmEvent } from "@subql/frontier-evm-processor";
 import { ClaimRewardsEvent } from "@subql/contract-sdk/typechain/RewardsDistributer";
 import assert from "assert";
 import { Trader } from "../types";
 import { getUpsertAt } from "./utils";
 
 export async function handleRewardsClaimed(
-    event: AcalaEvmEvent<ClaimRewardsEvent['args']>
+    event: FrontierEvmEvent<ClaimRewardsEvent['args']>
   ): Promise<void> {
     logger.info('handleRewardsClaimed');
     assert(event.args, 'No event args');

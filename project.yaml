@@ -4,10 +4,10 @@ version: 0.1.0
 runner:
   node:
     name: '@subql/node'
-    version: '>=1.0.0'
+    version: '>=1.8.0'
   query:
     name: '@subql/query'
-    version: '*'
+    version: '>=1.5.0'
 description: >-
   This project is for capturing the data for the exchange contract on the
   subquery kepler network
@@ -15,15 +15,15 @@ repository: 'https://github.com/subquery/subquery-network-exchange.git'
 schema:
   file: ./schema.graphql
 network:
-  chainId: '0x5c562e6300954998233c9a40b6b86f3028977e6d32d0da1af207738d19f98c1b'
-  endpoint: 'wss://mandala-tc7-rpcnode.aca-dev.network/ws'
-  dictionary: 'https://api.subquery.network/sq/subquery/acala-mandala-tc7-dictionary'
+  chainId: '0x91bc6e169807aaa54802737e1c504b2577d4fafedd5a02c10293b1cd60e39527' #moonbase alpha
+  endpoint: 'wss://moonbeam-alpha.api.onfinality.io/public-ws'
+  dictionary: 'https://api.subquery.network/sq/subquery/moonbase-alpha-dictionary'
 
 x-frontier: &frontier
-  kind: substrate/AcalaEvm
-  startBlock: 1753655 
+  kind: substrate/FrontierEvm
+  startBlock: 2701125 
   processor: &frontier-processor
-    file: './dist/acalaEvm.js'
+    file: './dist/frontierEvm.js'
   assets: 
     permissionedExchange:
       file: ./node_modules/@subql/contract-sdk/artifacts/contracts/PermissionedExchange.sol/PermissionedExchange.json

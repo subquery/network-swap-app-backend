@@ -14,7 +14,7 @@ import {
 import { Network } from '@ethersproject/networks';
 import { Deferrable, resolveProperties } from '@ethersproject/properties';
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
-import { Bytes } from '@polkadot/api/node_modules/@polkadot/types';
+import { Bytes } from '@polkadot/types/primitive';
 
 function BNishToHex(value: BigNumberish): string {
     return BigNumber.from(value).toHexString();
