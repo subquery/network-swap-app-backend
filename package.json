@@ -21,7 +21,7 @@
   "author": "Lachlan McCrae",
   "license": "MIT",
   "devDependencies": {
-    "@polkadot/api": "9",
+    "@polkadot/api": "^9",
     "@subql/cli": "^1.0.0",
     "@subql/types": "^1.0.1-0",
     "@types/bs58": "^4.0.1",
