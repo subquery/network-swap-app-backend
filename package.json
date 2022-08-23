@@ -59,6 +59,6 @@
   },
   "exports": {
     "frontierEvm": "./node_modules/@subql/frontier-evm-processor/dist/index.js",
-    "chaintypes": "./chaintypes.js"
+    "chaintypes": "./src/chaintypes.ts"
   }
 }
