@@ -41,7 +41,7 @@ services:
   graphql-engine:
     image: onfinality/subql-query:latest
     ports:
-      - 3000:3000
+      - 3002:3002
     depends_on:
       "postgres":
         condition: service_healthy
