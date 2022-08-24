@@ -22,7 +22,7 @@ function calculateTradeAmount(
     const getIsKSQT = isKSQT(tokenGet); 
     const tradeAmountBN = BigNumber.from(totalTradeAmount);
 
-    if(getIsKSQT) return tradeAmountBN.add(amountGet).toBigInt();
+    if (getIsKSQT) return tradeAmountBN.add(amountGet).toBigInt();
 
     return totalTradeAmount;
 }
@@ -50,7 +50,7 @@ async function createTrade(
 export async function handleExchangeOrderSent(
     event: FrontierEvmEvent<ExchangeOrderSentEvent['args']>
   ): Promise<void> {
-    logger.info('handleRewardsClaimed');
+    logger.info('handleExchangeOrderSent');
     assert(event.args, 'No event args');
 
     const { orderId, sender, tokenGive, tokenGet, amountGive, amountGet, expireDate } = event.args;
@@ -73,7 +73,7 @@ export async function handleExchangeOrderSent(
 
 export async function handleTrade(
     event: FrontierEvmEvent<TradeEvent['args']>
-){
+): Promise<void> {
     logger.info('handleTrade');
     assert(event.args, 'No event args');
 
@@ -122,7 +122,7 @@ export async function handleTrade(
 
 export async function handleOrderSettled(
     event: FrontierEvmEvent<OrderSettledEvent['args']>
-){
+): Promise<void> {
     logger.info('handleOrderSettled');
     assert(event.args, 'No event args');
 
