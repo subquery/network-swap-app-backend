@@ -10,6 +10,7 @@
     "validate": "subql validate",
     "prepare": "husky install",
     "prepack": "rm -rf dist && yarn build",
+    "postinstall": "sh ./scripts/postinstall.sh",
     "check-filters": "node -r ts-node/register/transpile-only ./scripts/checkFilters.ts"
   },
   "homepage": "https://github.com/subquery/subquery-network-kepler-exchange",
@@ -51,7 +52,8 @@
   "resolutions": {
     "class-transformer": "0.4.0",
     "ipfs-unixfs": "6.0.6",
-    "@polkadot/util": "10.1.5"
+    "@polkadot/util": "10.1.5",
+    "@ethersproject/base64": "5.7.0"
   },
   "lint-staged": {
     "*.ts": "eslint --cache --fix",

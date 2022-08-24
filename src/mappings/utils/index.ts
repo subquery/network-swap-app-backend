@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { FrontierEvmEvent } from '@subql/frontier-evm-processor';
-import testnetAddresses from '@subql/contract-sdk/publish/testnet.json';
+import testnetAddresses from '@subql/contract-sdk/publish/moonbase.json';
 
 export const EXCHANGE_DIST_ADDRESS = testnetAddresses.PermissionedExchange.address;
 export const KSQT_ADDRESS = testnetAddresses.SQToken.address;
