@@ -71,35 +71,11 @@ export async function handleExchangeOrderSent(
     await order.save();
 }
 
-export async function handleTrade(
+async function createOrUpdateTrader(
+    sender: string,
+    handlerInfo: string,
     event: FrontierEvmEvent<TradeEvent['args']>
-): Promise<void> {
-    logger.info('handleTrade');
-    assert(event.args, 'No event args');
-
-    const { orderId } = event.args;
-    
-    const handlerInfo = getUpsertAt('handleTrade', event);
-
-    const permissionedExchange = PermissionedExchange__factory.connect(
-        EXCHANGE_DIST_ADDRESS,
-        new FrontierEthProvider()
-    );
-    
-    const { amountGiveLeft, sender } = await permissionedExchange.orders(orderId);    
-    await createTrade(orderId, sender, event);
-
-    //-- Order Entity handling 
-
-    const order = await Order.get(orderId.toString());
-    assert(order, `Expect order with id ${orderId.toString()} to exist`);
-
-    order.amountGiveLeft = amountGiveLeft.toBigInt();
-    order.updateAt = handlerInfo;
-    await order.save();
-
-    //-- Trader Entity handling 
-
+) {
     let trader = await Trader.get(sender);
     const totalTradeAmount = calculateTradeAmount(trader?.totalTradeAmount ?? BigInt(0), event);
 
@@ -118,6 +94,35 @@ export async function handleTrade(
         trader.maxTradeAmount = totalAwardAmount - totalTradeAmount;
     }
     await trader.save();
+}
+
+export async function handleTrade(
+    event: FrontierEvmEvent<TradeEvent['args']>
+): Promise<void> {
+    logger.info('handleTrade');
+    assert(event.args, 'No event args');
+
+    const { orderId } = event.args;
+    const handlerInfo = getUpsertAt('handleTrade', event);
+
+    //-- Trade Entitiy handling
+    const permissionedExchange = PermissionedExchange__factory.connect(
+        EXCHANGE_DIST_ADDRESS,
+        new FrontierEthProvider()
+    );
+
+    //-- Trader and Trade Entitiy handling
+    const { amountGiveLeft, sender } = await permissionedExchange.orders(orderId);    
+    await createOrUpdateTrader(sender, handlerInfo, event);
+    await createTrade(orderId, sender, event);
+
+    //-- Order Entity handling 
+    const order = await Order.get(orderId.toString());
+    assert(order, `Expect order with id ${orderId.toString()} to exist`);
+
+    order.amountGiveLeft = amountGiveLeft.toBigInt();
+    order.updateAt = handlerInfo;
+    await order.save();
 }
 
 export async function handleOrderSettled(
