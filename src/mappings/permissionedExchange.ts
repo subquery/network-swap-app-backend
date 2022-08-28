@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { FrontierEvmEvent } from "@subql/frontier-evm-processor";
-import { ExchangeOrderSentEvent, OrderSettledEvent, TradeEvent } from "@subql/contract-sdk/typechain/PermissionedExchange";
+import { ExchangeOrderSentEvent, OrderSettledEvent, TradeEvent, QuotaAddedEvent } from "@subql/contract-sdk/typechain/PermissionedExchange";
 import assert from "assert";
 import { OrderStatus } from "../types";
 
@@ -47,30 +47,6 @@ async function createTrade(
     await trade.save();   
 }
 
-export async function handleExchangeOrderSent(
-    event: FrontierEvmEvent<ExchangeOrderSentEvent['args']>
-  ): Promise<void> {
-    logger.info('handleExchangeOrderSent');
-    assert(event.args, 'No event args');
-
-    const { orderId, sender, tokenGive, tokenGet, amountGive, amountGet, expireDate } = event.args;
-
-    const order = Order.create({
-        id: orderId.toString(),
-        sender,
-        tokenGive,
-        tokenGet,
-        amountGive: amountGive.toBigInt(),
-        amountGet: amountGet.toBigInt(),
-        expireDate: new Date(expireDate.toNumber() * 1000), // seconds from contract
-        amountGiveLeft: amountGive.toBigInt(),
-        status: ACTIVE,
-        createAt: getUpsertAt('handleExchangeOrderSent', event)
-    });
-
-    await order.save();
-}
-
 async function createOrUpdateTrader(
     sender: string,
     handlerInfo: string,
@@ -94,6 +70,32 @@ async function createOrUpdateTrader(
         trader.maxTradeAmount = totalAwardAmount - totalTradeAmount;
     }
     await trader.save();
+}
+
+// MAPPING HANDLERS
+
+export async function handleExchangeOrderSent(
+    event: FrontierEvmEvent<ExchangeOrderSentEvent['args']>
+  ): Promise<void> {
+    logger.info('handleExchangeOrderSent');
+    assert(event.args, 'No event args');
+
+    const { orderId, sender, tokenGive, tokenGet, amountGive, amountGet, expireDate } = event.args;
+
+    const order = Order.create({
+        id: orderId.toString(),
+        sender,
+        tokenGive,
+        tokenGet,
+        amountGive: amountGive.toBigInt(),
+        amountGet: amountGet.toBigInt(),
+        expireDate: new Date(expireDate.toNumber() * 1000), // seconds from contract
+        amountGiveLeft: amountGive.toBigInt(),
+        status: ACTIVE,
+        createAt: getUpsertAt('handleExchangeOrderSent', event)
+    });
+
+    await order.save();
 }
 
 export async function handleTrade(
@@ -140,4 +142,33 @@ export async function handleOrderSettled(
     order.amountGet = amountGet.toBigInt();
     order.updateAt = getUpsertAt('handleOrderSettled', event);
     await order.save();
+}
+
+export async function handleQuotaAdded( 
+    event: FrontierEvmEvent<QuotaAddedEvent['args']>
+): Promise<void> {
+    logger.info('handleQuotaAdded');
+    assert(event.args, 'No event args');
+    const { account, amount } = event.args;
+
+    const amountBigInt = amount.toBigInt();
+    const handlerInfo = getUpsertAt('handleQuotaAdded', event);
+
+    let trader = await Trader.get(account);
+
+    if (!trader) {
+        trader = Trader.create({
+            id: account,
+            totalTradeAmount: BigInt(0),
+            totalAwardAmount: amountBigInt,
+            maxTradeAmount: amountBigInt,
+            createAt: handlerInfo 
+        });
+    } else {
+        const totalAwardAmount = trader.totalAwardAmount + amountBigInt
+        trader.totalAwardAmount = totalAwardAmount; 
+        trader.maxTradeAmount = totalAwardAmount - trader.totalTradeAmount;   
+    }
+    
+    await trader.save();
 }
