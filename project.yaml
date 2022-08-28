@@ -27,8 +27,6 @@ x-frontier: &frontier
   assets: 
     permissionedExchange:
       file: ./node_modules/@subql/contract-sdk/artifacts/contracts/PermissionedExchange.sol/PermissionedExchange.json
-    rewardsDistributor:
-      file: ./node_modules/@subql/contract-sdk/artifacts/contracts/RewardsDistributer.sol/RewardsDistributer.json
 
 dataSources:
   - <<: *frontier
@@ -55,17 +53,8 @@ dataSources:
           filter:
             topics:
               - OrderSettled(uint256 indexed orderId, address tokenGive, uint256 amountGive, address tokenGet, uint256 amountGet)
-  - <<: *frontier
-    processor:
-      <<: *frontier-processor
-      options:
-        abi: rewardsDistributor
-        address: '0x16Ea9AEF51e28e8f84D87b8667f8e7103804061b'
-    mapping:
-      file: ./dist/index.js
-      handlers:
-        - handler: handleRewardsClaimed
+        - handler: handleQuotaAdded
           kind: substrate/FrontierEvmEvent
           filter:
             topics:
-              - ClaimRewards(address indexed indexer, address indexed delegator, uint256 rewards)
+              - QuotaAdded(address token, address account, uint256 amount)

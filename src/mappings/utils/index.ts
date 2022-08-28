@@ -14,8 +14,7 @@ export const KSQT_ADDRESS = testnetAddresses.SQToken.address;
  * @returns `${topicHandler:block:Txhash}`
  */
 export const getUpsertAt = (handler: string, event: FrontierEvmEvent<any>): string => {
-  const upsertAt = `${handler}:${event.blockNumber}:${event.transactionHash}`;
-  return upsertAt;
+  return `${handler}:${event.blockNumber}:${event.transactionHash}`;
 };
 
 export const isKSQT = (address: string): boolean => {
