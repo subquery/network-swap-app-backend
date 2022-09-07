@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { FrontierEvmEvent } from "@subql/frontier-evm-processor";
-import { ExchangeOrderSentEvent, OrderSettledEvent, TradeEvent, QuotaAddedEvent } from "@subql/contract-sdk/typechain/PermissionedExchange";
+import { ExchangeOrderSentEvent, OrderSettledEvent, TradeEvent, QuotaAddedEvent, PermissionedExchange } from "@subql/contract-sdk/typechain/PermissionedExchange";
 import assert from "assert";
 import { OrderStatus } from "../types";
 
@@ -81,20 +81,40 @@ export async function handleExchangeOrderSent(
     assert(event.args, 'No event args');
 
     const { orderId, sender, tokenGive, tokenGet, amountGive, amountGet, expireDate } = event.args;
+    const permissionedExchange = PermissionedExchange__factory.connect(
+        EXCHANGE_DIST_ADDRESS,
+        new FrontierEthProvider()
+    );
+
+    const { pairOrderId, tokenGiveBalance } = await permissionedExchange.orders(orderId);
 
     const order = Order.create({
         id: orderId.toString(),
         sender,
         tokenGive,
         tokenGet,
+        pairOrderId: pairOrderId.toBigInt(),
         amountGive: amountGive.toBigInt(),
         amountGet: amountGet.toBigInt(),
         expireDate: new Date(expireDate.toNumber() * 1000), // seconds from contract
-        amountGiveLeft: amountGive.toBigInt(),
+        tokenGiveBalance: tokenGiveBalance.toBigInt(),
         status: ACTIVE,
         createAt: getUpsertAt('handleExchangeOrderSent', event)
     });
 
+    await order.save();
+}
+
+async function updateOrder(orderId: BigInt, permissionedExchange: PermissionedExchange, handlerInfo: string) {
+    // orderId start from `1`
+    if (orderId === BigInt(0)) return;
+
+    const { tokenGiveBalance } = await permissionedExchange.orders(orderId.toString());    
+    const order = await Order.get(orderId.toString());
+    assert(order, `Expect order with id ${orderId.toString()} to exist`);
+
+    order.tokenGiveBalance = tokenGiveBalance.toBigInt();
+    order.updateAt = handlerInfo;
     await order.save();
 }
 
@@ -114,17 +134,13 @@ export async function handleTrade(
     );
 
     //-- Trader and Trade Entitiy handling
-    const { amountGiveLeft, sender } = await permissionedExchange.orders(orderId);    
+    const { sender, pairOrderId } = await permissionedExchange.orders(orderId);    
     await createOrUpdateTrader(sender, handlerInfo, event);
     await createTrade(orderId, sender, event);
 
     //-- Order Entity handling 
-    const order = await Order.get(orderId.toString());
-    assert(order, `Expect order with id ${orderId.toString()} to exist`);
-
-    order.amountGiveLeft = amountGiveLeft.toBigInt();
-    order.updateAt = handlerInfo;
-    await order.save();
+    await updateOrder(orderId.toBigInt(), permissionedExchange, handlerInfo);
+    await updateOrder(pairOrderId.toBigInt(), permissionedExchange, handlerInfo);
 }
 
 export async function handleOrderSettled(
@@ -133,13 +149,11 @@ export async function handleOrderSettled(
     logger.info('handleOrderSettled');
     assert(event.args, 'No event args');
 
-    const { orderId, amountGive, amountGet } = event.args;
+    const { orderId } = event.args;
     const order = await Order.get(orderId.toString());
     assert(order, `No order found for ${orderId}`)
 
     order.status = INACTIVE;
-    order.amountGive = amountGive.toBigInt();
-    order.amountGet = amountGet.toBigInt();
     order.updateAt = getUpsertAt('handleOrderSettled', event);
     await order.save();
 }
