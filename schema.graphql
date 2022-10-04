@@ -30,7 +30,8 @@ enum OrderStatus {
 
 type Order @entity {
   id: ID! #orderId
-  amountGiveLeft: BigInt! #amount left that indexer can trade
+  tokenGiveBalance: BigInt! #amount left that indexer can trade
+  pairOrderId: BigInt! # pair order ID
 
   sender: String!
   tokenGive: String!
