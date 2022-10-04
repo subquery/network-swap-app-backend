@@ -17,11 +17,11 @@ schema:
 network:
   chainId: '0x91bc6e169807aaa54802737e1c504b2577d4fafedd5a02c10293b1cd60e39527' #moonbase alpha
   endpoint: 'wss://moonbeam-alpha.api.onfinality.io/public-ws'
-  # dictionary: 'https://api.subquery.network/sq/subquery/moonbase-alpha-dictionary'
+  dictionary: 'https://api.subquery.network/sq/subquery/go-dict'
 
 x-frontier: &frontier
   kind: substrate/FrontierEvm
-  startBlock: 2721778 
+  startBlock: 2944141 
   processor: &frontier-processor
     file: './dist/frontierEvm.js'
   assets: 
@@ -34,7 +34,7 @@ dataSources:
       <<: *frontier-processor
       options:
         abi: permissionedExchange
-        address: '0x86a107Cceb1aAD40b6f457878DAdbbe66ef0C1DA'
+        address: '0xFB9886595d4Ce0ae4B29c34A73d8B1B6fCE43cD1'
     mapping:
       file: ./dist/index.js
       handlers:
