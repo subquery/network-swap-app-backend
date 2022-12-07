@@ -21,7 +21,7 @@ network:
 
 x-frontier: &frontier
   kind: substrate/FrontierEvm
-  startBlock: 2944141 
+  startBlock: 3301462 
   processor: &frontier-processor
     file: './dist/frontierEvm.js'
   assets: 
@@ -34,7 +34,7 @@ dataSources:
       <<: *frontier-processor
       options:
         abi: permissionedExchange
-        address: '0xFB9886595d4Ce0ae4B29c34A73d8B1B6fCE43cD1'
+        address: '0xBa7C1d878A95bA0655A44BFEC1DB58881fB8Df4b'
     mapping:
       file: ./dist/index.js
       handlers:
