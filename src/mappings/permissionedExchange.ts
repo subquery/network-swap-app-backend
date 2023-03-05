@@ -1,22 +1,21 @@
 // Copyright 2020-2022 SubQuery Pte Ltd authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { FrontierEvmEvent } from "@subql/frontier-evm-processor";
 import { ExchangeOrderSentEvent, OrderSettledEvent, TradeEvent, QuotaAddedEvent, PermissionedExchange } from "@subql/contract-sdk/typechain/PermissionedExchange";
 import assert from "assert";
 import { OrderStatus } from "../types";
 
 import { PermissionedExchange__factory } from '@subql/contract-sdk';
-import FrontierEthProvider from './ethProvider';
 import { EXCHANGE_DIST_ADDRESS, getUpsertAt, isKSQT } from "./utils";
 import { Order, Trade, Trader } from "../types";
 import { BigNumber } from 'ethers';
+import { EthereumLog } from "@subql/types-ethereum";
 
 const { ACTIVE, INACTIVE } = OrderStatus;
 
 function calculateTradeAmount(
     totalTradeAmount: bigint,
-    event: FrontierEvmEvent<TradeEvent['args']>
+    event: EthereumLog<TradeEvent['args']>
 ): bigint {
     const {tokenGet, amountGet} = event.args;
     const getIsKSQT = isKSQT(tokenGet); 
@@ -30,7 +29,7 @@ function calculateTradeAmount(
 async function createTrade(
     orderId: BigNumber,
     sender: string,
-    event: FrontierEvmEvent<TradeEvent['args']>
+    event: EthereumLog<TradeEvent['args']>
 ): Promise<void> {
     const { tokenGive, tokenGet, amountGive, amountGet } = event.args;
 
@@ -50,7 +49,7 @@ async function createTrade(
 async function createOrUpdateTrader(
     sender: string,
     handlerInfo: string,
-    event: FrontierEvmEvent<TradeEvent['args']>
+    event: EthereumLog<TradeEvent['args']>
 ) {
     let trader = await Trader.get(sender);
     const totalTradeAmount = calculateTradeAmount(trader?.totalTradeAmount ?? BigInt(0), event);
@@ -75,7 +74,7 @@ async function createOrUpdateTrader(
 // MAPPING HANDLERS
 
 export async function handleExchangeOrderSent(
-    event: FrontierEvmEvent<ExchangeOrderSentEvent['args']>
+    event: EthereumLog<ExchangeOrderSentEvent['args']>
   ): Promise<void> {
     logger.info('handleExchangeOrderSent');
     assert(event.args, 'No event args');
@@ -83,7 +82,7 @@ export async function handleExchangeOrderSent(
     const { orderId, sender, tokenGive, tokenGet, amountGive, amountGet, expireDate } = event.args;
     const permissionedExchange = PermissionedExchange__factory.connect(
         EXCHANGE_DIST_ADDRESS,
-        new FrontierEthProvider()
+        api
     );
 
     const { pairOrderId, tokenGiveBalance } = await permissionedExchange.orders(orderId);
@@ -119,7 +118,7 @@ async function updateOrder(orderId: BigInt, permissionedExchange: PermissionedEx
 }
 
 export async function handleTrade(
-    event: FrontierEvmEvent<TradeEvent['args']>
+    event: EthereumLog<TradeEvent['args']>
 ): Promise<void> {
     logger.info('handleTrade');
     assert(event.args, 'No event args');
@@ -130,7 +129,7 @@ export async function handleTrade(
     //-- Trade Entitiy handling
     const permissionedExchange = PermissionedExchange__factory.connect(
         EXCHANGE_DIST_ADDRESS,
-        new FrontierEthProvider()
+        api
     );
 
     //-- Trader and Trade Entitiy handling
@@ -144,7 +143,7 @@ export async function handleTrade(
 }
 
 export async function handleOrderSettled(
-    event: FrontierEvmEvent<OrderSettledEvent['args']>
+    event: EthereumLog<OrderSettledEvent['args']>
 ): Promise<void> {
     logger.info('handleOrderSettled');
     assert(event.args, 'No event args');
@@ -159,7 +158,7 @@ export async function handleOrderSettled(
 }
 
 export async function handleQuotaAdded( 
-    event: FrontierEvmEvent<QuotaAddedEvent['args']>
+    event: EthereumLog<QuotaAddedEvent['args']>
 ): Promise<void> {
     logger.info('handleQuotaAdded');
     assert(event.args, 'No event args');
