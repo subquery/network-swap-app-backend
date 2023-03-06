@@ -3,58 +3,52 @@ name: subquery-network-exchange
 version: 0.1.0
 runner:
   node:
-    name: '@subql/node'
-    version: '>=1.5.0'
+    name: '@subql/node-ethereum'
+    version: '*'
   query:
     name: '@subql/query'
-    version: '>=1.5.0'
-description: >-
-  This project is for capturing the data for the exchange contract on the
-  subquery kepler network
+    version: '*'
+description: Exchange project on the SubQuery Kepler Testnet
 repository: 'https://github.com/subquery/subquery-network-exchange.git'
 schema:
   file: ./schema.graphql
 network:
-  chainId: '0x91bc6e169807aaa54802737e1c504b2577d4fafedd5a02c10293b1cd60e39527' #moonbase alpha
-  endpoint: 'wss://moonbeam-alpha.api.onfinality.io/public-ws'
-  dictionary: 'https://api.subquery.network/sq/subquery/go-dict'
+  chainId: '80001' # Mumbai testnet 
+  endpoint: 'https://polygon-mumbai.infura.io/v3/4458cf4d1689497b9a38b1d6bbf05e78'
+  dictionary: 'https://mumbai-dict-cr.api.onfinality.io'
 
-x-frontier: &frontier
-  kind: substrate/FrontierEvm
-  startBlock: 3301462 
-  processor: &frontier-processor
-    file: './dist/frontierEvm.js'
+x-ethereum: &ethereum
+  kind: ethereum/Runtime 
+  startBlock: 32470803 
   assets: 
     permissionedExchange:
       file: ./node_modules/@subql/contract-sdk/artifacts/contracts/PermissionedExchange.sol/PermissionedExchange.json
 
 dataSources:
-  - <<: *frontier
-    processor:
-      <<: *frontier-processor
-      options:
-        abi: permissionedExchange
-        address: '0xBa7C1d878A95bA0655A44BFEC1DB58881fB8Df4b'
+  - <<: *ethereum
+    options:
+      abi: permissionedExchange
+      address: '0xB583121eAb4A8605e33fe9Ce1aE6030aef7aa7c5'
     mapping:
       file: ./dist/index.js
       handlers:
         - handler: handleExchangeOrderSent
-          kind: substrate/FrontierEvmEvent
+          kind: ethereum/LogHandler
           filter:
             topics:
               - ExchangeOrderSent(uint256 indexed orderId, address sender, address tokenGive, address tokenGet, uint256 amountGive, uint256 amountGet, uint256 expireDate)
         - handler: handleTrade
-          kind: substrate/FrontierEvmEvent
+          kind: ethereum/LogHandler
           filter:
             topics:
               - Trade(uint256 indexed orderId, address tokenGive, uint256 amountGive, address tokenGet, uint256 amountGet) 
         - handler: handleOrderSettled
-          kind: substrate/FrontierEvmEvent
+          kind: ethereum/LogHandler
           filter:
             topics:
               - OrderSettled(uint256 indexed orderId, address tokenGive, uint256 amountGive, address tokenGet, uint256 amountGet)
         - handler: handleQuotaAdded
-          kind: substrate/FrontierEvmEvent
+          kind: ethereum/LogHandler
           filter:
             topics:
               - QuotaAdded(address token, address account, uint256 amount)
