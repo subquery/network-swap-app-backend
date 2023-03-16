@@ -19,7 +19,7 @@ network:
 
 x-ethereum: &ethereum
   kind: ethereum/Runtime 
-  startBlock: 33168664 
+  startBlock: 3759675 
   assets: 
     permissionedExchange:
       file: ./node_modules/@subql/contract-sdk/artifacts/contracts/PermissionedExchange.sol/PermissionedExchange.json
