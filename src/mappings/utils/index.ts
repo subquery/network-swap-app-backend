@@ -1,8 +1,8 @@
 // Copyright 2020-2022 SubQuery Pte Ltd authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { FrontierEvmEvent } from '@subql/frontier-evm-processor';
-import testnetAddresses from '@subql/contract-sdk/publish/moonbase.json';
+import testnetAddresses from '@subql/contract-sdk/publish/testnet.json';
+import { EthereumLog } from '@subql/types-ethereum';
 
 export const EXCHANGE_DIST_ADDRESS = testnetAddresses.PermissionedExchange.address;
 export const KSQT_ADDRESS = testnetAddresses.SQToken.address;
@@ -13,7 +13,7 @@ export const KSQT_ADDRESS = testnetAddresses.SQToken.address;
  * @param event
  * @returns `${topicHandler:block:Txhash}`
  */
-export const getUpsertAt = (handler: string, event: FrontierEvmEvent<any>): string => {
+export const getUpsertAt = (handler: string, event: EthereumLog<any>): string => {
   return `${handler}:${event.blockNumber}:${event.transactionHash}`;
 };
 
