@@ -3,7 +3,6 @@ type Trader @entity {
   totalTradeAmount: BigInt! #total sold amount of KSQT
   totalAwardAmount: BigInt! #summed from ClaimRewards event
   maxTradeAmount: BigInt! #totalAwardAmount - totalTradeAmount
-
   trades: [Trade] @derivedFrom(field: "sender")
 
   createAt: String #getUpsertAt: topicHandler:block:Txhash
@@ -32,7 +31,6 @@ type Order @entity {
   id: ID! #orderId
   tokenGiveBalance: BigInt! #amount left that indexer can trade
   pairOrderId: BigInt! # pair order ID
-
   sender: String!
   tokenGive: String!
   tokenGet: String!
@@ -41,7 +39,6 @@ type Order @entity {
   expireDate: Date!
 
   status: OrderStatus! # Inactive when cancel/setExpired
-
   createAt: String #getUpsertAt: topicHandler:block:Txhash
   updateAt: String #getUpsertAt: topicHandler:block:Txhash
 }

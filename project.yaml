@@ -3,23 +3,23 @@ name: subquery-network-exchange
 version: 0.1.0
 runner:
   node:
-    name: '@subql/node-ethereum'
-    version: '*'
+    name: "@subql/node-ethereum"
+    version: "*"
   query:
-    name: '@subql/query'
-    version: '*'
+    name: "@subql/query"
+    version: "*"
 description: Exchange project on the SubQuery Kepler Testnet
-repository: 'https://github.com/subquery/subquery-network-exchange.git'
+repository: "https://github.com/subquery/subquery-network-exchange.git"
 schema:
   file: ./schema.graphql
 network:
-  chainId: '137' # Mumbai testnet 
-  endpoint: 'https://polygon.api.onfinality.io/rpc/public'
+  chainId: "137" # Mumbai testnet
+  endpoint: "https://polygon.api.onfinality.io/rpc/public"
 
 x-ethereum: &ethereum
-  kind: ethereum/Runtime 
-  startBlock: 41192135 
-  assets: 
+  kind: ethereum/Runtime
+  startBlock: 41192135
+  assets:
     permissionedExchange:
       file: ./node_modules/@subql/contract-sdk/artifacts/contracts/PermissionedExchange.sol/PermissionedExchange.json
 
@@ -27,7 +27,7 @@ dataSources:
   - <<: *ethereum
     options:
       abi: permissionedExchange
-      address: '0x063482d40B31f78d4aDA6D0CDCBaE73F07Ea4865'
+      address: "0x063482d40B31f78d4aDA6D0CDCBaE73F07Ea4865"
     mapping:
       file: ./dist/index.js
       handlers:
@@ -40,7 +40,7 @@ dataSources:
           kind: ethereum/LogHandler
           filter:
             topics:
-              - Trade(uint256 indexed orderId, address tokenGive, uint256 amountGive, address tokenGet, uint256 amountGet) 
+              - Trade(uint256 indexed orderId, address tokenGive, uint256 amountGive, address tokenGet, uint256 amountGet)
         - handler: handleOrderSettled
           kind: ethereum/LogHandler
           filter:
