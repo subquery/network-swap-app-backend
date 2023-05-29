@@ -23,13 +23,16 @@ function calculateTradeAmount(
   totalTradeAmount: bigint,
   event: EthereumLog<TradeEvent["args"]>
 ): bigint {
-  const { tokenGet, amountGet } = event.args;
-  const getIsKSQT = isKSQT(tokenGet);
-  const tradeAmountBN = BigNumber.from(totalTradeAmount);
+  if (event.args) {
+    const { tokenGet, amountGet } = event.args;
+    const getIsKSQT = isKSQT(tokenGet);
+    const tradeAmountBN = BigNumber.from(totalTradeAmount);
 
-  if (getIsKSQT) return tradeAmountBN.add(amountGet).toBigInt();
+    if (getIsKSQT) return tradeAmountBN.add(amountGet).toBigInt();
 
-  return totalTradeAmount;
+    return totalTradeAmount;
+  }
+  return BigNumber.from(0).toBigInt();
 }
 
 async function createTrade(
@@ -37,19 +40,23 @@ async function createTrade(
   sender: string,
   event: EthereumLog<TradeEvent["args"]>
 ): Promise<void> {
-  const { tokenGive, tokenGet, amountGive, amountGet } = event.args;
+  if (event.args) {
+    const { tokenGive, tokenGet, amountGive, amountGet } = event.args;
 
-  const trade = Trade.create({
-    id: `${orderId.toString()}:${event.transactionHash}`,
-    tokenGive: tokenGet,
-    tokenGet: tokenGive,
-    amountGive: amountGet.toBigInt(),
-    amountGet: amountGive.toBigInt(),
-    senderId: sender,
-    createAt: getUpsertAt("createTrade", event),
-  });
+    const trade = Trade.create({
+      id: `${orderId.toString()}:${event.transactionHash}`,
+      tokenGive: tokenGet,
+      tokenGet: tokenGive,
+      amountGive: amountGet.toBigInt(),
+      amountGet: amountGive.toBigInt(),
+      senderId: sender,
+      blockHeight: event.blockNumber,
+      created: event.block.timestamp,
+      createAt: getUpsertAt("createTrade", event),
+    });
 
-  await trade.save();
+    await trade.save();
+  }
 }
 
 async function createOrUpdateTrader(
@@ -108,7 +115,7 @@ export async function handleExchangeOrderSent(
 
   const order = Order.create({
     id: orderId.toString(),
-    sender,
+    senderId: sender,
     tokenGive,
     tokenGet,
     pairOrderId: pairOrderId.toBigInt(),
@@ -117,6 +124,8 @@ export async function handleExchangeOrderSent(
     expireDate: new Date(expireDate.toNumber() * 1000), // seconds from contract
     tokenGiveBalance: tokenGiveBalance.toBigInt(),
     status: ACTIVE,
+    blockHeight: event.blockNumber,
+    created: event.block.timestamp,
     createAt: getUpsertAt("handleExchangeOrderSent", event),
   });
 
