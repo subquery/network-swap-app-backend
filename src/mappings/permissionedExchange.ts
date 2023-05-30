@@ -115,7 +115,7 @@ export async function handleExchangeOrderSent(
 
   const order = Order.create({
     id: orderId.toString(),
-    senderId: sender,
+    sender,
     tokenGive,
     tokenGet,
     pairOrderId: pairOrderId.toBigInt(),
