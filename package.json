@@ -5,8 +5,9 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "yarn check-filters && subql build",
-    "codegen:abi": "npx typechain --target=ethers-v5 './node_modules/@subql/contract-sdk/artifacts/contracts/**/*.json' --out-dir src/types/ethers-contracts",
+    "codegen:abi": "npx typechain --target=ethers-v5 './node_modules/@subql/contract-sdk/artifacts/contracts/PermissionedExchange.sol/PermissionedExchange.json' --out-dir src/types/ethers-contracts",
     "codegen": "./node_modules/.bin/subql codegen && yarn codegen:abi",
+    "dev": "subql codegen && subql build && docker-compose pull && docker-compose up --remove-orphans",
     "deploy": "subql publish",
     "validate": "subql validate",
     "lint": "eslint . --ext .ts",
@@ -43,7 +44,7 @@
   },
   "dependencies": {
     "@ethersproject/abi": "^5.7.0",
-    "@subql/contract-sdk": "^0.12.5-2",
+    "@subql/contract-sdk": "^0.13.0",
     "@subql/types-ethereum": "dev",
     "@types/pino": "^7.0.5",
     "@types/validator": "latest",
