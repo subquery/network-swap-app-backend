@@ -19,7 +19,7 @@ type Trade @entity {
   amountGet: BigInt!
 
   blockHeight: Int! # When submitted
-  created: BigInt! # When submitted
+  created: Date! # When submitted
   createAt: String #getUpsertAt: topicHandler:block:Txhash
   updateAt: String #getUpsertAt: topicHandler:block:Txhash
 }
@@ -40,7 +40,7 @@ type Order @entity {
   amountGet: BigInt!
   expireDate: Date!
   blockHeight: Int! # When submitted
-  created: BigInt! # When submitted
+  created: Date! # When submitted
   status: OrderStatus! # Inactive when cancel/setExpired
   createAt: String #getUpsertAt: topicHandler:block:Txhash
   updateAt: String #getUpsertAt: topicHandler:block:Txhash
