@@ -7,6 +7,7 @@ import {
   TradeEvent,
   QuotaAddedEvent,
   PermissionedExchange,
+  ExchangeOrderChangedEvent,
 } from "@subql/contract-sdk/typechain/PermissionedExchange";
 import assert from "assert";
 import { OrderStatus } from "../types";
@@ -218,4 +219,19 @@ export async function handleQuotaAdded(
   }
 
   await trader.save();
+}
+
+
+export async function handleOrderChanged(
+  event: EthereumLog<ExchangeOrderChangedEvent["args"]>
+): Promise<void> {
+  logger.info("handleQuotaAdded");
+  assert(event.args, "No event args");
+  const { orderId, tokenGiveBalance } = event.args;
+
+  const order = await Order.get(orderId.toString());
+  assert(order, `Expect order with id ${orderId.toString()} to exist`);
+
+  order.tokenGiveBalance = tokenGiveBalance.toBigInt();
+  await order.save();
 }

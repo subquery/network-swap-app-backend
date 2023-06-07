@@ -52,3 +52,8 @@ dataSources:
           filter:
             topics:
               - QuotaAdded(address token, address account, uint256 amount)
+        - handler: handleOrderChanged
+          kind: ethereum/LogHandler
+          filter:
+            topics:
+              - ExchangeOrderChanged(uint256 indexed orderId, uint256 tokenGiveBalance)
