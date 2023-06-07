@@ -37,6 +37,11 @@ dataSources:
           filter:
             topics:
               - ExchangeOrderSent(uint256 indexed orderId, address sender, address tokenGive, address tokenGet, uint256 amountGive, uint256 amountGet, uint256 expireDate)
+        - handler: handleOrderChanged
+          kind: ethereum/LogHandler
+          filter:
+            topics:
+              - ExchangeOrderChanged(uint256 indexed orderId, uint256 tokenGiveBalance);
         - handler: handleTrade
           kind: ethereum/LogHandler
           filter:
