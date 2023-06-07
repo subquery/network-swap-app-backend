@@ -225,7 +225,7 @@ export async function handleQuotaAdded(
 export async function handleOrderChanged(
   event: EthereumLog<ExchangeOrderChangedEvent["args"]>
 ): Promise<void> {
-  logger.info("handleQuotaAdded");
+  logger.info("handleOrderChanged");
   assert(event.args, "No event args");
   const { orderId, tokenGiveBalance } = event.args;
 
