@@ -23,8 +23,3 @@ export const getUpsertAt = (
 export const isKSQT = (address: string): boolean => {
   return address === KSQT_ADDRESS;
 };
-
-
-export function biToDate(bi: bigint): Date {
-  return new Date(Number(bi) * 1000);
-}
