@@ -3,6 +3,7 @@
 
 import {
   ExchangeOrderSentEvent,
+  ExchangeOrderChangedEvent,
   OrderSettledEvent,
   TradeEvent,
   QuotaAddedEvent,
@@ -129,6 +130,21 @@ export async function handleExchangeOrderSent(
     createAt: getUpsertAt("handleExchangeOrderSent", event),
   });
 
+  await order.save();
+}
+
+export async function handleOrderChanged(
+  event: EthereumLog<ExchangeOrderChangedEvent["args"]>)
+: Promise<void> {
+  logger.info("handleOrderChanged");
+  assert(event.args, "No event args");
+
+  const { orderId, tokenGiveBalance } = event.args;
+  const order = await Order.get(orderId.toString());
+  assert(order, `Expect order with id ${orderId.toString()} to exist`);
+
+  order.tokenGiveBalance = tokenGiveBalance.toBigInt();
+  order.updateAt = getUpsertAt("handleOrderChanged", event);
   await order.save();
 }
 
