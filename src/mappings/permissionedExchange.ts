@@ -13,7 +13,7 @@ import assert from "assert";
 import { OrderStatus } from "../types";
 
 import { PermissionedExchange__factory } from "@subql/contract-sdk";
-import { EXCHANGE_DIST_ADDRESS, getUpsertAt, isKSQT } from "./utils";
+import { EXCHANGE_DIST_ADDRESS, biToDate, getUpsertAt, isKSQT } from "./utils";
 import { Order, Trade, Trader } from "../types";
 import { BigNumber } from "ethers";
 import { EthereumLog } from "@subql/types-ethereum";
@@ -52,7 +52,7 @@ async function createTrade(
       amountGet: amountGive.toBigInt(),
       senderId: sender,
       blockHeight: event.blockNumber,
-      created: event.block.timestamp,
+      created: biToDate(event.block.timestamp),
       createAt: getUpsertAt("createTrade", event),
     });
 
@@ -126,7 +126,7 @@ export async function handleExchangeOrderSent(
     tokenGiveBalance: tokenGiveBalance.toBigInt(),
     status: ACTIVE,
     blockHeight: event.blockNumber,
-    created: event.block.timestamp,
+    created: biToDate(event.block.timestamp),
     createAt: getUpsertAt("handleExchangeOrderSent", event),
   });
 
@@ -183,9 +183,9 @@ export async function handleTrade(
   );
 
   //-- Trader and Trade Entitiy handling
-  const { sender, pairOrderId } = await permissionedExchange.orders(orderId);
-  await createOrUpdateTrader(sender, handlerInfo, event);
-  await createTrade(orderId, sender, event);
+  const { pairOrderId } = await permissionedExchange.orders(orderId);
+  await createOrUpdateTrader(event.transaction.from, handlerInfo, event);
+  await createTrade(orderId, event.transaction.from, event);
 
   //-- Order Entity handling
   await updateOrder(orderId.toBigInt(), permissionedExchange, handlerInfo);
