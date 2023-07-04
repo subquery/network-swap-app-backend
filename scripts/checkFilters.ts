@@ -5,20 +5,30 @@
  * Checks that ethereum/LogHandler topics
  */
 
-import fs from "fs";
-import path from "path";
-import yaml from "js-yaml";
+import fs from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
 import {
   Interface,
   EventFragment /*, FunctionFragment*/,
-} from "@ethersproject/abi";
+} from '@ethersproject/abi';
 
-const file = path.resolve(__dirname, "../project.yaml");
+function getProjectFile() {
+  const network = process.argv[2];
+  switch (network) {
+    case 'testnet':
+      return path.resolve(__dirname, '../project-testnet.yaml');
+    case 'kepler':
+      return path.resolve(__dirname, '../project-kepler.yaml');
+    default:
+      throw new Error('Unknown network');
+  }
+}
 
 function buildInterface(abiPath: string): Interface {
-  const abi = fs.readFileSync(abiPath, "utf8");
+  const abi = fs.readFileSync(abiPath, 'utf8');
   if (!abi) {
-    throw new Error("Abi not found");
+    throw new Error('Abi not found');
   }
 
   let abiObj = JSON.parse(abi) as string[];
@@ -54,15 +64,16 @@ type Project = {
 };
 
 function checkFilters() {
-  console.log("Checking filters exist in ABIs");
+  console.log('Checking filters exist in ABIs');
 
-  const project = yaml.load(fs.readFileSync(file, "utf-8")) as Project;
+  const file = getProjectFile();
+  const project = yaml.load(fs.readFileSync(file, 'utf-8')) as Project;
 
   const issues: string[] = [];
 
   project.dataSources.forEach((ds) => {
     ds.mapping.handlers
-      .filter((handler) => handler.kind === "ethereum/LogHandler")
+      .filter((handler) => handler.kind === 'ethereum/LogHandler')
       .forEach((handler) => {
         // Check event filters
         const topics: string[] | undefined = handler?.filter?.topics;
@@ -84,11 +95,11 @@ function checkFilters() {
   });
 
   if (issues.length) {
-    console.warn("Found issues with filters");
+    console.warn('Found issues with filters');
 
     issues.forEach((i) => console.warn(i));
   } else {
-    console.log("SUCCESS: No issues found with filters");
+    console.log('SUCCESS: No issues found with filters');
   }
 }
 

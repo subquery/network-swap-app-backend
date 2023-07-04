@@ -1,11 +1,15 @@
 // Copyright 2020-2022 SubQuery Pte Ltd authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import keplerContrats from "@subql/contract-sdk/publish/kepler.json";
+import keplerDeploymentFile from '@subql/contract-sdk/publish/kepler.json';
+import testnetDeploymentFile from '@subql/contract-sdk/publish/kepler.json';
 import { EthereumLog } from "@subql/types-ethereum";
 
-export const EXCHANGE_DIST_ADDRESS = keplerContrats.PermissionedExchange.address;
-export const KSQT_ADDRESS = keplerContrats.SQToken.address;
+
+export enum Contracts {
+  EXCHANGE_DIST_ADDRESS = 'PermissionedExchange',
+  KSQT_ADDRESS = 'SQToken',
+}
 
 /**
  *
@@ -21,10 +25,24 @@ export const getUpsertAt = (
 };
 
 export const isKSQT = (address: string): boolean => {
-  return address === KSQT_ADDRESS;
+  return address === Contracts.KSQT_ADDRESS;
 };
 
 
 export function biToDate(bi: bigint): Date {
   return new Date(Number(bi) * 1000);
+}
+
+export function getContractAddress(
+  networkId: number,
+  contract: Contracts
+): string {
+  const deploymentFile =
+    networkId === 80001 ? testnetDeploymentFile : keplerDeploymentFile;
+  // logger.info(
+  //   `${networkId}: ${contract} ${
+  //     deploymentFile[contract as keyof typeof deploymentFile].address
+  //   }`
+  // );
+  return deploymentFile[contract as keyof typeof deploymentFile].address;
 }

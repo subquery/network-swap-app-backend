@@ -1,0 +1,53 @@
+specVersion: 1.0.0
+name: subquery-airdrop-project
+version: 1.0.0
+runner:
+  node:
+    name: '@subql/node-ethereum'
+    version: '>2.8.0'
+  query:
+    name: '@subql/query'
+    version: '*'
+description: 'Airdrop project for SubQuery Kepler Testnet'
+repository: 'https://github.com/subquery/airdrop-subql-project.git'
+schema:
+  file: ./schema.graphql
+network:
+  chainId: '80001' # Mumbai testnet 
+  endpoint: 'https://polygon-mumbai.g.alchemy.com/v2/olBcbaUN-00iYo-4VDlJYbkpCmj5rLY0'
+
+x-ethereum: &ethereum
+  kind: ethereum/Runtime 
+  startBlock: 33168664
+  assets:
+    airdropper:
+      file: ./node_modules/@subql/contract-sdk/artifacts/contracts/Airdropper.sol/Airdropper.json
+
+dataSources:
+  - <<: *ethereum
+    options:
+      abi: airdropper
+      address: '0xB64D73B96358855075576D66746D2a88e043CC1E'
+    mapping:
+      file: ./dist/index.js
+      handlers:
+        - handler: handleRoundCreated
+          kind: ethereum/LogHandler
+          filter:
+            topics:
+              - RoundCreated(uint256 indexed roundId, address tokenAddress, uint256 roundStartTime, uint256 roundDeadline)
+        - handler: handleAddAirdrop
+          kind: ethereum/LogHandler
+          filter:
+            topics:
+              - AddAirdrop(address indexed addr, uint256 roundId, uint256 amount)
+        - handler: handleAirdropClaimed
+          kind: ethereum/LogHandler
+          filter:
+            topics:
+              - AirdropClaimed(address indexed addr, uint256 roundId, uint256 amount)
+        - handler: handleRoundSettled
+          kind: ethereum/LogHandler
+          filter:
+            topics:
+              - RoundSettled(uint256 indexed roundId, address settleDestination, uint256 unclaimAmount)
