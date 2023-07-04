@@ -28,7 +28,7 @@ dataSources:
   - <<: *ethereum
     options:
       abi: permissionedExchange
-      address: "0xE15C678f2C1c4aC32461E7c1ED9cb2e449dA6c2D"
+      address: "0xC60545B44f6b083dEE11F59A21942DC839f5621E"
     mapping:
       file: ./dist/index.js
       handlers:
