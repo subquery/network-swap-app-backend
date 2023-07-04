@@ -8,8 +8,10 @@
     "resolveJsonModule": true,
     "module": "commonjs",
     "outDir": "dist",
-    "rootDir": "src",
     "target": "es2017",
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true
   },
-  "include": ["src/**/*", "node_modules/@subql/types-ethereum/dist/global.d.ts"]
+  "include": ["scripts/**/*.ts","src/**/*", "node_modules/@subql/types-ethereum/dist/global.d.ts"]
 }

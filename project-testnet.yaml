@@ -1,0 +1,59 @@
+specVersion: 1.0.0
+name: subquery-network-exchange
+version: 0.1.0
+runner:
+  node:
+    name: "@subql/node-ethereum"
+    version: ">2.8.0"
+  query:
+    name: "@subql/query"
+    version: "*"
+description: Exchange project on the SubQuery Kepler Testnet
+repository: "https://github.com/subquery/subquery-network-exchange.git"
+schema:
+  file: ./schema.graphql
+network:
+  chainId: '80001' # Mumbai testnet 
+  endpoint: 'https://polygon-mumbai.infura.io/v3/4458cf4d1689497b9a38b1d6bbf05e78'
+  dictionary: 'https://mumbai-dict-cr.api.onfinality.io'
+
+x-ethereum: &ethereum
+  kind: ethereum/Runtime
+  startBlock: 37528625 
+  assets:
+    permissionedExchange:
+      file: ./node_modules/@subql/contract-sdk/artifacts/contracts/PermissionedExchange.sol/PermissionedExchange.json
+
+dataSources:
+  - <<: *ethereum
+    options:
+      abi: permissionedExchange
+      address: "0xC60545B44f6b083dEE11F59A21942DC839f5621E"
+    mapping:
+      file: ./dist/index.js
+      handlers:
+        - handler: handleExchangeOrderSent
+          kind: ethereum/LogHandler
+          filter:
+            topics:
+              - ExchangeOrderSent(uint256 indexed orderId, address sender, address tokenGive, address tokenGet, uint256 amountGive, uint256 amountGet, uint256 expireDate)
+        - handler: handleOrderChanged
+          kind: ethereum/LogHandler
+          filter:
+            topics:
+              - ExchangeOrderChanged(uint256 indexed orderId, uint256 tokenGiveBalance);
+        - handler: handleTrade
+          kind: ethereum/LogHandler
+          filter:
+            topics:
+              - Trade(uint256 indexed orderId, address tokenGive, uint256 amountGive, address tokenGet, uint256 amountGet)
+        - handler: handleOrderSettled
+          kind: ethereum/LogHandler
+          filter:
+            topics:
+              - OrderSettled(uint256 indexed orderId, address tokenGive, uint256 amountGive, address tokenGet, uint256 amountGet)
+        - handler: handleQuotaAdded
+          kind: ethereum/LogHandler
+          filter:
+            topics:
+              - QuotaAdded(address token, address account, uint256 amount)

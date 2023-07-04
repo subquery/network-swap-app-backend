@@ -13,7 +13,7 @@ import assert from "assert";
 import { OrderStatus } from "../types";
 
 import { PermissionedExchange__factory } from "@subql/contract-sdk";
-import { EXCHANGE_DIST_ADDRESS, biToDate, getUpsertAt, isKSQT } from "./utils";
+import { Contracts, biToDate, getContractAddress, getUpsertAt, isKSQT } from "./utils";
 import { Order, Trade, Trader } from "../types";
 import { BigNumber } from "ethers";
 import { EthereumLog } from "@subql/types-ethereum";
@@ -105,8 +105,9 @@ export async function handleExchangeOrderSent(
     amountGet,
     expireDate,
   } = event.args;
+  const network = await api.getNetwork();
   const permissionedExchange = PermissionedExchange__factory.connect(
-    EXCHANGE_DIST_ADDRESS,
+    getContractAddress(network.chainId, Contracts.EXCHANGE_DIST_ADDRESS),
     api
   );
 
@@ -177,8 +178,9 @@ export async function handleTrade(
   const handlerInfo = getUpsertAt("handleTrade", event);
 
   //-- Trade Entitiy handling
+  const network = await api.getNetwork();
   const permissionedExchange = PermissionedExchange__factory.connect(
-    EXCHANGE_DIST_ADDRESS,
+    getContractAddress(network.chainId, Contracts.EXCHANGE_DIST_ADDRESS),
     api
   );
 
